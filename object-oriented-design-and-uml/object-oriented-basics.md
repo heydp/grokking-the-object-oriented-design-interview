@@ -12,56 +12,88 @@ If you have never used an object-oriented programming language before, you will 
 
 **Class Code Snippet:**
 
-```python
-class ShoppingCart(object):
+```go
 
-    def __init__(self):
-      self.total = 0
-      self.items = {}
+// ShoppingCart represents a shopping cart.
+type ShoppingCart struct {
+	total float64
+	items map[string]int
+}
 
-    def add_item(self, item_name, quantity, price):
-        self.total += (quantity * price)
-        self.items.update({item_name : quantity})
+// NewShoppingCart creates a new shopping cart instance.
+func NewShoppingCart() *ShoppingCart {
+	return &ShoppingCart{
+		total: 0,
+		items: make(map[string]int),
+	}
+}
 
+// AddItem adds an item to the shopping cart.
+func (sc *ShoppingCart) AddItem(itemName string, quantity int, price float64) {
+	sc.total += float64(quantity) * price
+	sc.items[itemName] += quantity
+}
 
-    def remove_item(self, item_name, quantity, price):
-        self.total -= (quantity * price)
-        if quantity > self.items[item_name]:
-          del self.items[item_name]
-        self.items[item_name] -= quantity
+// RemoveItem removes an item from the shopping cart.
+func (sc *ShoppingCart) RemoveItem(itemName string, quantity int, price float64) string {
+	_, ok := sc.items[itemName]
+	if ok == false {
+		return fmt.Sprintf("the %v item is not present in cart", itemName)
+	}
+	if sc.items[itemName] < quantity {
+		return fmt.Sprintf("only %v  %v item are there in the cart", quantity, itemName)
+	}
+	sc.total -= float64(quantity) * price
+	if quantity == sc.items[itemName] {
+		delete(sc.items, itemName)
+	} else {
+		sc.items[itemName] -= quantity
+	}
+	return ""
+}
 
-
-    def checkout(self, cash_paid):
-        balance = 0
-        if cash_paid < self.total:
-          return "You paid {} but cart amount is {}".format(cash_paid, self.total)
-        balance = cash_paid - self.total
-        return "Exchange amount: {}".format(balance)
+// Checkout processes the checkout for the shopping cart.
+func (sc *ShoppingCart) Checkout(cashPaid float64) string {
+	if cashPaid < sc.total {
+		return fmt.Sprintf("You paid %v but cart amount is %v", cashPaid, sc.total)
+	}
+	balance := cashPaid - sc.total
+	return fmt.Sprintf("Exchange amount: %v", balance)
+}
 ```
 
 **Object and it's Uses Code Snippet:**
-```python
+```go
 # Driver code
-cart = ShoppingCart()
+func main() {
+	// Example usage
+	cart := NewShoppingCart()
+	cart.AddItem("apple", 3, 1.50)
+	cart.AddItem("banana", 2, 0.75)
 
-cart.add_item('A', 10, 50)
-cart.add_item('B', 5, 20)
+	fmt.Println("Total:", cart.total)
+	fmt.Println("Items:", cart.items)
 
-cart.remove_item('B', 1, 20)
+	err := cart.RemoveItem("orange", 1, 1.50)
+	if err != "" {
+		fmt.Println("the err is : ", err)
+	}
 
-cart_res = cart.checkout(600)
+	fmt.Println("Total after removal:", cart.total)
+	fmt.Println("Items after removal:", cart.items)
 
-print('Total cart amount:', cart.total)
-print('Cart items:', cart.items)
-
-print(cart_res)
+	fmt.Println(cart.Checkout(5.00))
+}
 ```
 
 **Response:**
 ```
-Total cart amount: 580
-Cart items: {'B': 4, 'A': 10}
-Exchange amount: 20
+Total: 6
+Items: map[apple:3 banana:2]
+the err is :  the orange item is not present in cart
+Total after removal: 6
+Items after removal: map[apple:3 banana:2]
+You paid 5 but cart amount is 6
 ``` 
 
 <p align="center">
@@ -70,40 +102,77 @@ Exchange amount: 20
 
 The four principles of object-oriented programming are encapsulation, abstraction, inheritance, and polymorphism.
 
-* **Encapsulation:** Encapsulation is the mechanism of binding the data together and hiding it from the outside world. Encapsulation is achieved when each object keeps its state private so that other objects don’t have direct access to its state. Instead, they can access this state only through a set of public functions.
+* **Encapsulation:**
+  -  Encapsulation is the mechanism of binding the data together and hiding it from the outside world. Encapsulation is achieved when each object keeps its state private so that other objects don’t have direct access to its state. Instead, they can access this state only through a set of public functions.
+  -  Encapsulation in Go is achieved through the use of struct fields and methods. Go doesn't have traditional access control keywords like public, private, or protected as seen in languages like Java or C++. Instead, it uses naming conventions and package-level scoping to determine visibility. 
 
 **Encapsulation Code Snippet:**
 
-```python
-class Product:
+```go
+package main
 
-    def __init__(self):
-        self.__maxprice = 900
+import (
+	"fmt"
+)
 
-    def sell(self):
-        print("Selling Price: {}".format(self.__maxprice))
+// Person represents a person with private fields and public methods.
+type Person struct {
+	name string // private field, starts with small alphabet, can be only updated with in the package 
+	age  int    // private field
+}
 
-    def set_max_price(self, price):
-        self.__maxprice = price
+// NewPerson creates a new Person instance with the provided name and age.
+func NewPerson(name string, age int) *Person {
+	return &Person{
+		name: name,
+		age:  age,
+	}
+}
 
-product = Product()
-product.sell()
+// GetName returns the name of the person.
+func (p *Person) GetName() string {
+	return p.name
+}
 
-# change the price
-product.__maxprice = 1000
-product.sell()
+// GetAge returns the age of the person.
+func (p *Person) GetAge() int {
+	return p.age
+}
 
-# using setter function
-product.set_max_price(1000)
-product.sell()
+// SetName sets the name of the person.
+func (p *Person) SetName(name string) {
+	p.name = name
+}
+
+// SetAge sets the age of the person.
+func (p *Person) SetAge(age int) {
+	p.age = age
+}
+
+func main() {
+	// Create a new Person instance
+	person := NewPerson("John", 30)
+
+	// Access and modify fields using methods
+	fmt.Println("Name:", person.GetName())
+	fmt.Println("Age:", person.GetAge())
+
+	person.SetName("Alice")
+	person.SetAge(25)
+
+	fmt.Println("Updated Name:", person.GetName())
+	fmt.Println("Updated Age:", person.GetAge())
+}
+
 ```
 
 
 **Response:**
 ```
-Selling Price: 900
-Selling Price: 900
-Selling Price: 1000
+Name: John
+Age: 30
+Updated Name: Alice
+Updated Age: 25
 ```
 
 * **Abstraction:** Abstraction can be thought of as the natural extension of encapsulation. It means hiding all but the relevant data about an object in order to reduce the complexity of the system. In a large system, objects talk to each other, which makes it difficult to maintain a large code base; abstraction helps by hiding internal implementation details of objects and only revealing operations that are relevant to other objects.
