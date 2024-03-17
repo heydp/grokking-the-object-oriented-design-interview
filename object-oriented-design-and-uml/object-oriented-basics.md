@@ -175,47 +175,69 @@ Updated Name: Alice
 Updated Age: 25
 ```
 
-* **Abstraction:** Abstraction can be thought of as the natural extension of encapsulation. It means hiding all but the relevant data about an object in order to reduce the complexity of the system. In a large system, objects talk to each other, which makes it difficult to maintain a large code base; abstraction helps by hiding internal implementation details of objects and only revealing operations that are relevant to other objects.
+* **Abstraction:**
+  - Abstraction can be thought of as the natural extension of encapsulation. It means hiding all but the relevant data about an object in order to reduce the complexity of the system. In a large system, objects talk to each other, which makes it difficult to maintain a large code base; abstraction helps by hiding internal implementation details of objects and only revealing operations that are relevant to other objects.
+  - Abstraction in Go refers to the practice of hiding the implementation details of a type or package and exposing only the necessary functionality to the users of that type or package. This allows users to interact with the abstraction without needing to understand how it is implemented internally.
+  - In Go, abstraction can be achieved through several mechanisms:
+    1. Interfaces: Interfaces define a set of method signatures. Types that implement these method signatures implicitly satisfy the interface. By defining interfaces, you can interact with objects based on their behavior rather than their concrete type, promoting abstraction.
+    2. Packages: Go packages provide a way to organize code into separate, reusable units. By exporting specific functions, types, and variables from a package, you can control what is accessible to users of the package, hiding implementation details.
+    3. Composite Types: Structs and arrays in Go can encapsulate multiple values into a single unit. By exposing only certain fields or methods of a struct, you can abstract away the internal representation of the data.
+
+  - Here's a simple example demonstrating abstraction in Go using interfaces: 
 
 **Abstraction Code Snippet:**
 
-```python
-from abc import ABC, abstractmethod
+```go
+package main
 
-class Parent(ABC):
-  def common(self):
-    print('In common method of Parent')
+import (
+	"fmt"
+)
 
-  @abstractmethod
-  def vary(self):
-    pass
+// Animal is an interface that defines the Speak method.
+type Animal interface {
+	Speak() string
+}
 
-class Child1(Parent):
-  def vary(self):
-    print('In vary method of Child1')
+// Dog is a struct representing a dog.
+type Dog struct {
+	Name string
+}
 
-class Child2(Parent):
-  def vary(self):
-    print('In vary method of Child2')
+// Speak implements the Speak method for Dog.
+func (d Dog) Speak() string {
+	return fmt.Sprintf("%s says: Woof!", d.Name)
+}
 
-# object of Child1 class
-child1 = Child1()
-child1.common()
-child1.vary()
+// Cat is a struct representing a cat.
+type Cat struct {
+	Name string
+}
 
-# object of Child2 class
-child2 = Child2()
-child2.common()
-child2.vary()
+// Speak implements the Speak method for Cat.
+func (c Cat) Speak() string {
+	return fmt.Sprintf("%s says: Meow!", c.Name)
+}
+
+func main() {
+	dog := Dog{Name: "Fido"}
+	cat := Cat{Name: "Whiskers"}
+
+	animals := []Animal{dog, cat} // storing structs in the interface type
+
+	for _, animal := range animals {
+		fmt.Println(animal.Speak())
+	}
+}
+
 ```
 
 
 **Response:**
 ```
-In common method of Parent
-In vary method of Child1
-In common method of Parent
-In vary method of Child2
+Fido says: Woof!
+Whiskers says: Meow!
+
 ```
 
 * **Inheritance:** Inheritance is the mechanism of creating new classes from existing ones.
