@@ -240,75 +240,126 @@ Whiskers says: Meow!
 
 ```
 
-* **Inheritance:** Inheritance is the mechanism of creating new classes from existing ones.
+* **Inheritance:**
+   - Inheritance is the mechanism of creating new classes from existing ones.
+   - In Go, there's no direct support for class-based inheritance as in object-oriented languages like Java or Python. However, you can achieve similar behavior using composition and embedding.
+
+   - Composition:
+                 Composition is a way of building types by combining other types. You can embed one struct within another to achieve composition. The fields and methods of the embedded struct become part of the outer struct.
 
 **Inheritance Code Snippet:**
 
-```python
-class Person(object): 
+```go
+ package main
 
-    def __init__(self, name):
-        self.name = name
+import (
+	"fmt"
+)
 
-    def get_name(self):
-        return self.name
+// Animal represents an animal.
+type Animal struct {
+	Name string
+}
 
-    def is_employee(self):
-        return False
-   
+// Speak method for animals.
+func (a *Animal) Speak() {
+	fmt.Println("Animal sound")
+}
 
-class Employee(Person):
+// Dog represents a dog.
+type Dog struct {
+	Animal // Embedding Animal into Dog
+	Breed  string
+}
 
-    def is_employee(self): 
-        return True
-   
-# Driver code
-emp = Person("Person 1")
-print("{} is employee: {}".format(emp.get_name(), emp.is_employee()))
+// Speak method for dogs.
+func (d *Dog) Speak() {
+	fmt.Println("Woof!")
+}
 
-emp = Employee("Employee 1")
-print("{} is employee: {}".format(emp.get_name(), emp.is_employee()))
+func main() {
+	dog := Dog{
+		Animal: Animal{Name: "Buddy"},
+		Breed:  "Labrador",
+	}
+
+	fmt.Println("Name:", dog.Name) // Accessing embedded field
+	fmt.Println("Breed:", dog.Breed)
+
+	dog.Speak() // Call Speak method of Dog
+}
+
 ```
 
 
 **Response:**
 ```
-Person 1 is employee: False
-Employee 1 is employee: True
+Name: Buddy
+Breed: Labrador
+Woof!
 ```
 
-* **Polymorphism:** Polymorphism (from Greek, meaning “many forms”) is the ability of an object to take different forms and thus, depending upon the context, to respond to the same message in different ways. Take the example of a chess game; a chess piece can take many forms, like bishop, castle, or knight and all these pieces will respond differently to the ‘move’ message.
+* **Polymorphism:**
+  - Polymorphism (from Greek, meaning “many forms”) is the ability of an object to take different forms and thus, depending upon the context, to respond to the same message in different ways.
+  - Take the example of a chess game; we can demonstrate polymorphism by representing different types of chess pieces (e.g., pawn, rook, bishop) as different types that implement a common interface, such as Piece.
 
 **Polymorphism Code Snippet:**
 
-```python
-class Bishops:
+```go
+package main
 
-    def move(self):
-        print("Bishops can move diagonally")
+import "fmt"
 
-class Knights:
+// Piece represents a chess piece.
+type Piece interface {
+	Move() string
+}
 
-    def move(self):
-        print("Knights can move two squares vertically and one square horizontally, or two squares horizontally and one square vertically")
+// Pawn represents a pawn chess piece.
+type Pawn struct{}
 
-# common interface
-def move_test(chess_piece):
-    chess_piece.move()
-# Driver code
+// Move implements the Move method for Pawn.
+func (p Pawn) Move() string {
+	return "Forward 1 square"
+}
 
-#instantiate objects
-bishop = Bishops()
-knight = Knights()
+// Rook represents a rook chess piece.
+type Rook struct{}
 
-# passing the object
-move_test(bishop)
-move_test(knight)
+// Move implements the Move method for Rook.
+func (r Rook) Move() string {
+	return "Forward, backward, left, or right any number of squares"
+}
+
+// Bishop represents a bishop chess piece.
+type Bishop struct{}
+
+// Move implements the Move method for Bishop.
+func (b Bishop) Move() string {
+	return "Diagonally any number of squares"
+}
+
+func main() {
+	// Create an array of chess pieces
+	pieces := []Piece{
+		Pawn{},
+		Rook{},
+		Bishop{},
+	}
+
+	// Move each chess piece
+	for _, piece := range pieces {
+		fmt.Println(piece.Move())
+	}
+}
+
 ```
 
 
 **Response:**
 ```
-Bishops can move diagonally
-Knights can move two squares vertically and one square horizontally, or two squares horizontally and one square vertically
+Forward 1 square
+Forward, backward, left, or right any number of squares
+Diagonally any number of squares
+
 ```
